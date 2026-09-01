@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compressor de PDF (&lt; 2 MB) — Fast & Private PDF Compression</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <div class="logo-area">
+        <div class="logo-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <path d="M12 12v6"/>
+            <path d="m9 15 3 3 3-3"/>
+          </svg>
+        </div>
+        <div>
+          <h1>Compressor de PDF</h1>
+          <p class="subtitle">Reduza o tamanho do seu PDF para <strong>menos de 2 MB</strong> em segundos</p>
+        </div>
+      </div>
+      <div class="privacy-badge">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <span>100% Privado — Ficheiro processado no seu computador</span>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <!-- Step 1: Upload Zone -->
+      <section id="uploadSection" class="card dropzone-card">
+        <div id="dropZone" class="dropzone">
+          <input type="file" id="fileInput" accept="application/pdf" class="file-input" />
+          <div class="dropzone-content">
+            <div class="upload-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/>
+                <path d="M12 12v9"/>
+                <path d="m16 16-4-4-4 4"/>
+              </svg>
+            </div>
+            <h3>Arraste o seu PDF para aqui</h3>
+            <p>ou clique para escolher um ficheiro no seu computador</p>
+            <span class="btn btn-secondary select-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+              Escolher Ficheiro PDF
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 2: File Selected & Ready to Compress -->
+      <section id="selectedSection" class="card hidden">
+        <div class="file-preview-card">
+          <div class="file-icon">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+          </div>
+          <div class="file-details">
+            <h3 id="fileName">documento.pdf</h3>
+            <div class="size-tags">
+              <span id="originalSizeBadge" class="badge badge-warning">Tamanho: -- MB</span>
+              <span id="targetNotice" class="target-notice">
+                🎯 Vamos reduzir para <strong>&lt; 2.00 MB</strong>
+              </span>
+            </div>
+          </div>
+          <button id="cancelBtn" class="icon-btn" title="Remover ficheiro">✕</button>
+        </div>
+
+        <div class="action-bar">
+          <button id="compressBtn" class="btn btn-primary btn-large">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+            Reduzir PDF para menos de 2 MB
+          </button>
+        </div>
+      </section>
+
+      <!-- Step 3: Progress State -->
+      <section id="progressSection" class="card hidden">
+        <div class="progress-container">
+          <div class="spinner-area">
+            <div class="spinner"></div>
+          </div>
+          <h3 id="statusText">A otimizar o seu PDF...</h3>
+          <p id="subStatusText">A aplicar algoritmos de alta performance diretamente no seu browser</p>
+          <div class="progress-bar-bg">
+            <div id="progressBar" class="progress-bar-fill" style="width: 0%"></div>
+          </div>
+          <div class="progress-percentage" id="progressPercent">0%</div>
+        </div>
+      </section>
+
+      <!-- Step 4: Result Success -->
+      <section id="resultSection" class="card result-card hidden">
+        <div class="success-banner">
+          <div class="success-icon">✓</div>
+          <h2>Concluído com sucesso!</h2>
+          <p>O seu ficheiro foi reduzido e está pronto para submissão.</p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-box">
+            <span class="stat-label">Tamanho Original</span>
+            <span id="resOriginalSize" class="stat-value text-muted">8.40 MB</span>
+          </div>
+          <div class="stat-arrow">➔</div>
+          <div class="stat-box stat-highlight">
+            <span class="stat-label">Novo Tamanho</span>
+            <span id="resCompressedSize" class="stat-value text-success">1.42 MB</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Redução</span>
+            <span id="resReduction" class="stat-badge">-83%</span>
+          </div>
+        </div>
+
+        <div id="underTwoMbBadge" class="status-pill success-pill">
+          ✓ Ficheiro inferior a 2.0 MB — Perfeito para submeter no portal!
+        </div>
+
+        <div class="result-actions">
+          <a id="downloadBtn" class="btn btn-success btn-large" href="#" download>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Descarregar PDF Comprimido (<span id="downloadBtnSize">-- MB</span>)
+          </a>
+
+          <button id="resetBtn" class="btn btn-secondary">
+            Comprimir outro ficheiro PDF
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <p>Desenvolvido para máxima velocidade, privacidade e facilidade de utilização.</p>
+      <p class="tech-note">Tecnologia WebAssembly & Client-Side Canvas Engine</p>
+    </footer>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
