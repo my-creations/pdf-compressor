@@ -1,17 +1,35 @@
 import * as pdfjsLib from 'pdfjs-dist';
 import { PDFDocument } from 'pdf-lib';
 
-// Configure pdfjs worker for Vite
-import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
-
 export const TARGET_MAX_BYTES = 1.9 * 1024 * 1024; // 1.9 MB safety target
+
+/**
+ * Configure worker safely for browser environment
+ */
+export function initPdfWorker() {
+  if (typeof window !== 'undefined' && !pdfjsLib.GlobalWorkerOptions.workerSrc) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+      'pdfjs-dist/build/pdf.worker.min.mjs',
+      import.meta.url
+    ).toString();
+  }
+}
 
 /**
  * Format bytes to readable MB string
  */
 export function formatMB(bytes) {
+  if (typeof bytes !== 'number' || isNaN(bytes) || bytes < 0) return '0.00 MB';
   return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+}
+
+/**
+ * Calculate reduction percentage
+ */
+export function calculateReduction(originalSize, compressedSize) {
+  if (!originalSize || originalSize <= 0) return 0;
+  const reduction = Math.round((1 - compressedSize / originalSize) * 100);
+  return Math.max(0, reduction);
 }
 
 /**
@@ -21,6 +39,7 @@ export function formatMB(bytes) {
  * @returns {Promise<{ pdfBytes: Uint8Array, originalSize: number, compressedSize: number, pages: number }>}
  */
 export async function compressPdf(arrayBuffer, onProgress = () => {}) {
+  initPdfWorker();
   const originalSize = arrayBuffer.byteLength;
   onProgress(5, 'A carregar PDF...');
 
@@ -30,8 +49,6 @@ export async function compressPdf(arrayBuffer, onProgress = () => {}) {
 
   onProgress(10, `PDF carregado (${numPages} páginas). A analisar...`);
 
-  // Target estimation based on file size and page count
-  // We start with high quality settings and adaptively scale down if needed
   let scale = 1.5;
   let quality = 0.80;
 
@@ -65,7 +82,7 @@ export async function compressPdf(arrayBuffer, onProgress = () => {}) {
 
     resultSize = resultPdfBytes.byteLength;
 
-    // If still larger than 1.9 MB, lower resolution scale and quality factor aggressively
+    // If still larger than 1.9 MB, lower resolution scale and quality factor adaptively
     if (resultSize > TARGET_MAX_BYTES) {
       const ratio = TARGET_MAX_BYTES / resultSize;
       scale = Math.max(0.75, scale * Math.sqrt(ratio) * 0.95);
@@ -99,7 +116,6 @@ async function processPages(pdfDoc, numPages, scale, quality, onPageProgress) {
     canvas.width = Math.floor(viewport.width);
     canvas.height = Math.floor(viewport.height);
 
-    // Fill white background for crisp document rendering
     context.fillStyle = '#FFFFFF';
     context.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -109,14 +125,11 @@ async function processPages(pdfDoc, numPages, scale, quality, onPageProgress) {
       intent: 'print'
     }).promise;
 
-    // Export canvas directly as compressed JPEG blob/Uint8Array
     const jpegDataUrl = canvas.toDataURL('image/jpeg', quality);
     const jpegBytes = dataURLToUint8Array(jpegDataUrl);
 
-    // Embed into pdf-lib document
     const embeddedImage = await newPdf.embedJpg(jpegBytes);
     
-    // Maintain original page aspect ratio in PDF points
     const pdfPage = newPdf.addPage([viewport.width / scale, viewport.height / scale]);
     pdfPage.drawImage(embeddedImage, {
       x: 0,
@@ -125,7 +138,6 @@ async function processPages(pdfDoc, numPages, scale, quality, onPageProgress) {
       height: viewport.height / scale,
     });
 
-    // Cleanup canvas reference for memory garbage collection
     canvas.width = 0;
     canvas.height = 0;
 

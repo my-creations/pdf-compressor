@@ -1,5 +1,5 @@
 import confetti from 'canvas-confetti';
-import { compressPdf, formatMB } from './pdfCompressor.js';
+import { compressPdf, formatMB, calculateReduction } from './pdfCompressor.js';
 
 // DOM Elements
 const dropZone = document.getElementById('dropZone');
@@ -135,7 +135,7 @@ function displayResult(result) {
 
   const origMB = formatMB(result.originalSize);
   const compMB = formatMB(result.compressedSize);
-  const reduction = Math.round((1 - result.compressedSize / result.originalSize) * 100);
+  const reduction = calculateReduction(result.originalSize, result.compressedSize);
 
   resOriginalSize.textContent = origMB;
   resCompressedSize.textContent = compMB;
