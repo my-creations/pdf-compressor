@@ -29,10 +29,10 @@ git clone https://github.com/my-creations/pdf-compressor.git
 cd pdf-compressor
 
 # Install dependencies
-pnpm install
+bun install
 
 # Start development server
-pnpm dev
+bun dev
 ```
 
 ## 📦 Deployment
