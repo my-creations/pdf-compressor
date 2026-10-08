@@ -9,18 +9,16 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
+# One run per branch/PR; a PR run never cancels a deploy from main.
 concurrency:
-  group: "pages"
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  test-and-deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  # Runs on pull requests too, so it must not use the github-pages environment
+  # (its protection rules only allow deployments from main).
+  test-and-build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -52,7 +50,17 @@ jobs:
         with:
           path: './dist'
 
+  deploy:
+    needs: test-and-build
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
       - name: Deploy to GitHub Pages
-        if: github.ref == 'refs/heads/main'
         id: deployment
         uses: actions/deploy-pages@v5
