@@ -11,8 +11,9 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE)
       .then((cache) => cache.addAll(PRECACHE))
-      .then(() => self.skipWaiting())
   );
+  // No skipWaiting(): a new version activates only once tabs running the old build are
+  // closed, so their lazily loaded chunks stay in the old cache until then.
 });
 
 self.addEventListener('activate', (event) => {

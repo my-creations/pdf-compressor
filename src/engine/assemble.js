@@ -1,5 +1,5 @@
-import { PDFDocument, degrees } from 'pdf-lib';
-import { loadPdf, savePdf, EngineError } from './optimize.js';
+import { PDFDocument, PDFName, degrees } from 'pdf-lib';
+import { loadPdf, savePdf, removeUnreachableObjects, EngineError } from './optimize.js';
 
 export const A4 = [595.28, 841.89];
 const PHOTO_MARGIN = 24;
@@ -42,8 +42,6 @@ export async function assemblePdf(job, codec, onProgress = () => {}) {
   }
 
   onProgress(0, { key: 'progress.assembling' });
-  const out = await PDFDocument.create();
-  out.setProducer('PDF Compressor');
   const loaded = new Map();
 
   const loadSource = async (id) => {
@@ -64,6 +62,33 @@ export async function assemblePdf(job, codec, onProgress = () => {}) {
     return loaded.get(id);
   };
 
+  // Edit one source PDF in place rather than copying its pages into a new document:
+  // copyPages() leaves the catalog behind, which would drop form fields (AcroForm),
+  // bookmarks and metadata. Prefer the PDF with a form, else the first; pages from
+  // the other sources are copied in.
+  const pdfIds = [...new Set(pages.map((p) => p.sourceId))].filter((id) => sources[id].kind === 'pdf');
+  let baseId = pdfIds[0];
+  for (const id of pdfIds) {
+    if ((await loadSource(id)).catalog.has(PDFName.of('AcroForm'))) {
+      baseId = id;
+      break;
+    }
+  }
+  let out;
+  let basePages = [];
+  if (baseId) {
+    out = await loadSource(baseId);
+    basePages = out.getPages();
+    for (let k = basePages.length - 1; k >= 0; k--) out.removePage(k);
+  } else {
+    out = await PDFDocument.create();
+  }
+  out.setProducer('PDF Compressor');
+
+  const rotate = (page, rotation) => {
+    if (rotation) page.setRotation(degrees((page.getRotation().angle + rotation) % 360));
+  };
+
   let i = 0;
   while (i < pages.length) {
     const spec = pages[i];
@@ -82,25 +107,25 @@ export async function assemblePdf(job, codec, onProgress = () => {}) {
       const layout = photoLayout(photo.width, photo.height, imagePageSize);
       const page = out.addPage(layout.page);
       page.drawImage(image, { x: layout.x, y: layout.y, width: layout.width, height: layout.height });
-      if (spec.rotation) page.setRotation(degrees(spec.rotation));
+      rotate(page, spec.rotation);
       i++;
     } else {
       // Copy consecutive pages from the same PDF in one call so shared resources stay shared.
       let j = i;
       while (j < pages.length && pages[j].sourceId === spec.sourceId) j++;
       const run = pages.slice(i, j);
-      const srcDoc = await loadSource(spec.sourceId);
-      const copied = await out.copyPages(srcDoc, run.map((p) => p.index));
-      copied.forEach((page, k) => {
+      const runPages = spec.sourceId === baseId
+        ? run.map((p) => basePages[p.index])
+        : await out.copyPages(await loadSource(spec.sourceId), run.map((p) => p.index));
+      runPages.forEach((page, k) => {
         out.addPage(page);
-        if (run[k].rotation) {
-          page.setRotation(degrees((page.getRotation().angle + run[k].rotation) % 360));
-        }
+        rotate(page, run[k].rotation);
       });
       i = j;
     }
     onProgress(i / pages.length, { key: 'progress.assembling' });
   }
 
+  removeUnreachableObjects(out); // drops deleted pages nothing else points to
   return { bytes: await savePdf(out), edited: true };
 }

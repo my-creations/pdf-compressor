@@ -116,6 +116,24 @@ describe('image discovery', () => {
     expect(decodeRawSamples(images[0]).length).toBe(200 * 150 * 3);
   });
 
+  it('never re-encodes soft masks', async () => {
+    const doc = await PDFDocument.create();
+    const { context } = doc;
+    const alpha = new Uint8Array(400 * 300).map(() => rand() * 255);
+    const smask = context.register(context.flateStream(alpha, {
+      Type: 'XObject', Subtype: 'Image', Width: 400, Height: 300, ColorSpace: 'DeviceGray', BitsPerComponent: 8,
+    }));
+    const rgb = new Uint8Array(400 * 300 * 3).map(() => rand() * 255);
+    const image = context.register(context.flateStream(rgb, {
+      Type: 'XObject', Subtype: 'Image', Width: 400, Height: 300, ColorSpace: 'DeviceRGB', BitsPerComponent: 8, SMask: smask,
+    }));
+    doc.catalog.set(PDFName.of('TestImage'), image);
+
+    const images = collectImages(await PDFDocument.load(await doc.save()));
+    expect(images.length).toBe(1);
+    expect(images[0]).toMatchObject({ colors: 3 });
+  });
+
   it('ignores tiny images', async () => {
     const doc = await PDFDocument.load(await pdfWithImage(8, 8));
     expect(collectImages(doc).length).toBe(0);
@@ -208,6 +226,30 @@ describe('assemble', () => {
     expect(doc.getPage(0).getWidth()).toBe(302);
     expect(doc.getPage(1).getRotation()).toEqual(degrees(90));
     expect(doc.getPage(2).getRotation()).toEqual(degrees(180));
+  });
+
+  it('keeps form fields when pages are edited or other files are merged in', async () => {
+    const doc = await PDFDocument.create();
+    const first = doc.addPage([300, 400]);
+    doc.addPage([301, 400]);
+    doc.addPage([302, 400]);
+    const field = doc.getForm().createTextField('nome');
+    field.setText('Maria');
+    field.addToPage(first, { x: 20, y: 300, width: 200, height: 24 });
+    const other = await textDoc(1);
+    const sources = {
+      form: { kind: 'pdf', bytes: await doc.save(), name: 'form.pdf', pageCount: 3 },
+      other: { kind: 'pdf', bytes: other, name: 'other.pdf', pageCount: 1 },
+    };
+    const pages = [
+      { sourceId: 'other', index: 0, rotation: 0 },
+      { sourceId: 'form', index: 2, rotation: 0 },
+      { sourceId: 'form', index: 0, rotation: 90 },
+    ];
+    const out = await PDFDocument.load((await assemblePdf({ sources, pages }, fakeCodec)).bytes);
+    expect(out.getPages().map((p) => p.getWidth())).toEqual([300, 302, 300]);
+    expect(out.getPage(2).getRotation()).toEqual(degrees(90));
+    expect(out.getForm().getTextField('nome').getText()).toBe('Maria');
   });
 
   it('fits photos on A4 in the right orientation', () => {

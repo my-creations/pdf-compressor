@@ -189,12 +189,29 @@ export function describeImage(context, stream) {
   return null; // JPX, JBIG2, CCITT, chains: already efficient or unsupported
 }
 
+/** Tags of streams used as another image's /SMask or /Mask. */
+function maskRefs(context) {
+  const masks = new Set();
+  for (const [, obj] of context.enumerateIndirectObjects()) {
+    if (!(obj instanceof PDFStream) || obj.dict.get(N('Subtype')) !== N('Image')) continue;
+    for (const key of ['SMask', 'Mask']) {
+      const value = obj.dict.get(N(key));
+      if (value instanceof PDFRef) masks.add(value.tag);
+    }
+  }
+  return masks;
+}
+
 /** List the images in a document that the hybrid engine can re-encode. */
 export function collectImages(doc) {
   const { context } = doc;
   const images = [];
+  // Masks must stay DeviceGray (soft masks) or 1-bit (stencils), so they are never re-encoded
+  // as RGB JPEGs. The PDF spec lets a mask's resolution differ from its image's, so shrinking
+  // the image alone is safe.
+  const masks = maskRefs(context);
   for (const [ref, obj] of context.enumerateIndirectObjects()) {
-    if (!(obj instanceof PDFRawStream)) continue;
+    if (!(obj instanceof PDFRawStream) || masks.has(ref.tag)) continue;
     const info = describeImage(context, obj);
     if (info) images.push({ ref, stream: obj, bytes: obj.contents.length, ...info });
   }
