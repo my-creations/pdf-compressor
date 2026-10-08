@@ -12,7 +12,9 @@
     "test": "bun test tests/unit && playwright test"
   },
   "dependencies": {
+    "@fontsource-variable/plus-jakarta-sans": "^5.3.0",
     "canvas-confetti": "^1.9.4",
+    "fflate": "^0.8.3",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^4.10.38"
   },

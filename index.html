@@ -1,163 +1,222 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-PT">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Compressor de PDF (&lt; 2 MB) — Fast & Private PDF Compression</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./src/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Compressor de PDF — reduza PDFs e fotos para o tamanho certo</title>
+  <meta name="description" content="Reduza PDFs e fotos para menos de 2 MB (ou o tamanho que escolher) diretamente no navegador. Privado, gratuito e funciona offline.">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f5f7fc" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0e1220" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <link rel="manifest" href="./manifest.webmanifest">
 </head>
 <body>
-  <div class="app-container">
+  <div class="app">
     <header class="app-header">
-      <div class="logo-area">
-        <div class="logo-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
             <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
             <polyline points="14 2 14 8 20 8"/>
-            <path d="M12 12v6"/>
-            <path d="m9 15 3 3 3-3"/>
+            <path d="M12 11v7"/><path d="m9 15 3 3 3-3"/>
           </svg>
         </div>
         <div>
-          <h1>Compressor de PDF</h1>
-          <p class="subtitle">Reduza o tamanho do seu PDF para <strong>menos de 2 MB</strong> em segundos</p>
+          <h1 data-i18n="app.title">Compressor de PDF</h1>
+          <p class="subtitle" data-i18n="app.subtitle">Reduza PDFs e fotos para o tamanho que o portal pede, em segundos.</p>
         </div>
       </div>
-      <div class="privacy-badge">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
-          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-        </svg>
-        <span>100% Privado — Ficheiro processado no seu computador</span>
+      <div class="lang-switch" role="group" data-i18n-attr="aria-label:lang.label">
+        <button type="button" class="lang-btn" data-lang="pt" aria-pressed="true">PT</button>
+        <button type="button" class="lang-btn" data-lang="en" aria-pressed="false">EN</button>
       </div>
     </header>
 
-    <main class="main-content">
-      <!-- Step 1: Upload Zone -->
-      <section id="uploadSection" class="card dropzone-card">
-        <div id="dropZone" class="dropzone">
-          <input type="file" id="fileInput" accept="application/pdf" class="file-input" />
-          <div class="dropzone-content">
-            <div class="upload-icon">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/>
-                <path d="M12 12v9"/>
-                <path d="m16 16-4-4-4 4"/>
-              </svg>
-            </div>
-            <h3>Arraste o seu PDF para aqui</h3>
-            <p>ou clique para escolher um ficheiro no seu computador</p>
-            <span class="btn btn-secondary select-btn">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="17 8 12 3 7 8"/>
-                <line x1="12" y1="3" x2="12" y2="15"/>
-              </svg>
-              Escolher Ficheiro PDF
-            </span>
-          </div>
-        </div>
+    <div class="privacy-pill">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+      <span data-i18n="app.privacy">Privado: os ficheiros nunca saem do seu dispositivo</span>
+    </div>
+
+    <ol class="stepper" id="stepper">
+      <li data-step="choose" class="is-current" aria-current="step"><span class="step-dot">1</span><span data-i18n="step.choose">Escolher</span></li>
+      <li data-step="adjust"><span class="step-dot">2</span><span data-i18n="step.adjust">Ajustar</span></li>
+      <li data-step="download"><span class="step-dot">3</span><span data-i18n="step.download">Descarregar</span></li>
+    </ol>
+
+    <main id="main">
+      <!-- Step 1: choose files -->
+      <section id="uploadView" class="view card">
+        <label id="dropZone" class="dropzone" for="fileInput">
+          <input type="file" id="fileInput" class="visually-hidden" multiple
+                 accept="application/pdf,.pdf,image/jpeg,image/png,image/webp,image/gif,image/bmp,image/heic,image/heif,.heic,.heif">
+          <span class="dropzone-icon" aria-hidden="true">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 14.9A7 7 0 1 1 15.7 8h1.8a4.5 4.5 0 0 1 2.5 8.2"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/>
+            </svg>
+          </span>
+          <span class="dropzone-title" data-i18n="drop.title">Arraste PDFs ou fotos para aqui</span>
+          <span class="dropzone-hint" data-i18n="drop.hint">ou clique para escolher. Pode juntar vários ficheiros.</span>
+          <span class="btn btn-primary" aria-hidden="true" data-i18n="drop.button">Escolher ficheiros</span>
+          <span class="dropzone-formats" data-i18n="drop.formats">PDF, JPG, PNG ou WebP</span>
+        </label>
+        <ul class="features">
+          <li><span class="feature-icon" aria-hidden="true">🎯</span><span data-i18n="feature.compress">Comprime até ao tamanho que escolher</span></li>
+          <li><span class="feature-icon" aria-hidden="true">🔤</span><span data-i18n="feature.text">Mantém o texto selecionável</span></li>
+          <li><span class="feature-icon" aria-hidden="true">📷</span><span data-i18n="feature.photos">Fotos do telemóvel → PDF</span></li>
+          <li><span class="feature-icon" aria-hidden="true">🗂️</span><span data-i18n="feature.merge">Junta vários ficheiros num só</span></li>
+        </ul>
       </section>
 
-      <!-- Step 2: File Selected & Ready to Compress -->
-      <section id="selectedSection" class="card hidden">
-        <div class="file-preview-card">
-          <div class="file-icon">
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
-              <polyline points="14 2 14 8 20 8"/>
-            </svg>
+      <!-- Step 2: adjust pages and options -->
+      <section id="workspaceView" class="view card hidden" aria-labelledby="wsSummary">
+        <div class="ws-toolbar">
+          <p id="wsSummary" class="ws-summary"></p>
+          <div class="ws-toolbar-actions">
+            <button type="button" id="addMoreBtn" class="btn btn-ghost btn-sm">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+              <span data-i18n="ws.addMore">Adicionar</span>
+            </button>
+            <button type="button" id="clearBtn" class="btn btn-ghost btn-sm" data-i18n="ws.clear">Recomeçar</button>
           </div>
-          <div class="file-details">
-            <h3 id="fileName">documento.pdf</h3>
-            <div class="size-tags">
-              <span id="originalSizeBadge" class="badge badge-warning">Tamanho: -- MB</span>
-              <span id="targetNotice" class="target-notice">
-                🎯 Vamos reduzir para <strong>&lt; 2.00 MB</strong>
+        </div>
+
+        <div id="fileGroups" class="file-groups"></div>
+        <p id="wsEmpty" class="ws-empty hidden" data-i18n="ws.empty">Todas as páginas foram removidas.</p>
+
+        <div class="options">
+          <fieldset class="option">
+            <legend data-i18n="opt.target">Tamanho máximo</legend>
+            <div class="chips" id="targetChips">
+              <label class="chip"><input type="radio" name="target" value="1"><span>1 MB</span></label>
+              <label class="chip"><input type="radio" name="target" value="2" checked><span>2 MB</span></label>
+              <label class="chip"><input type="radio" name="target" value="5"><span>5 MB</span></label>
+              <label class="chip"><input type="radio" name="target" value="10"><span>10 MB</span></label>
+              <label class="chip"><input type="radio" name="target" value="custom"><span data-i18n="opt.custom">Outro</span></label>
+              <span id="customTargetWrap" class="custom-target hidden">
+                <input type="text" inputmode="decimal" id="customTarget" class="text-input" autocomplete="off"
+                       data-i18n-attr="aria-label:opt.customLabel" placeholder="3">
+                <span>MB</span>
               </span>
             </div>
+            <p id="targetHint" class="option-hint" data-i18n="opt.targetHint">Muitos portais aceitam no máximo 2 MB.</p>
+          </fieldset>
+
+          <fieldset class="option hidden" id="outputOption">
+            <legend data-i18n="opt.output">Resultado</legend>
+            <div class="segmented">
+              <label><input type="radio" name="output" value="merge" checked><span data-i18n="opt.merge">Juntar num só PDF</span></label>
+              <label><input type="radio" name="output" value="separate"><span data-i18n="opt.separate">Um PDF por ficheiro</span></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="option hidden" id="photoOption">
+            <legend data-i18n="opt.photoPage">Página das fotos</legend>
+            <div class="segmented">
+              <label><input type="radio" name="photoPage" value="a4" checked><span data-i18n="opt.photoA4">A4</span></label>
+              <label><input type="radio" name="photoPage" value="fit"><span data-i18n="opt.photoFit">Tamanho da foto</span></label>
+            </div>
+          </fieldset>
+
+          <div class="option">
+            <label class="switch">
+              <input type="checkbox" id="grayscaleToggle" role="switch">
+              <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
+              <span class="switch-text">
+                <strong data-i18n="opt.grayscale">Preto e branco</strong>
+                <small data-i18n="opt.grayscaleHint">Fotos e digitalizações em tons de cinzento.</small>
+              </span>
+            </label>
           </div>
-          <button id="cancelBtn" class="icon-btn" title="Remover ficheiro">✕</button>
         </div>
 
-        <div class="action-bar">
-          <button id="compressBtn" class="btn btn-primary btn-large">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-            </svg>
-            Reduzir PDF para menos de 2 MB
-          </button>
+        <button type="button" id="compressBtn" class="btn btn-primary btn-lg btn-block">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span id="compressBtnLabel">Comprimir para menos de 2 MB</span>
+        </button>
+      </section>
+
+      <!-- Step 3a: progress -->
+      <section id="progressView" class="view card hidden" aria-live="polite">
+        <div class="progress">
+          <div class="progress-ring" aria-hidden="true"></div>
+          <h2 data-i18n="progress.title">A otimizar os seus ficheiros…</h2>
+          <p id="progressFile" class="progress-file"></p>
+          <p id="progressStatus" class="progress-status"></p>
+          <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressBar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <p class="progress-percent" id="progressPercent">0%</p>
+          <button type="button" id="cancelBtn" class="btn btn-ghost" data-i18n="progress.cancel">Cancelar</button>
         </div>
       </section>
 
-      <!-- Step 3: Progress State -->
-      <section id="progressSection" class="card hidden">
-        <div class="progress-container">
-          <div class="spinner-area">
-            <div class="spinner"></div>
-          </div>
-          <h3 id="statusText">A otimizar o seu PDF...</h3>
-          <p id="subStatusText">A aplicar algoritmos de alta performance diretamente no seu browser</p>
-          <div class="progress-bar-bg">
-            <div id="progressBar" class="progress-bar-fill" style="width: 0%"></div>
-          </div>
-          <div class="progress-percentage" id="progressPercent">0%</div>
-        </div>
-      </section>
-
-      <!-- Step 4: Result Success -->
-      <section id="resultSection" class="card result-card hidden">
-        <div class="success-banner">
-          <div class="success-icon">✓</div>
-          <h2>Concluído com sucesso!</h2>
-          <p>O seu ficheiro foi reduzido e está pronto para submissão.</p>
-        </div>
-
-        <div class="stats-grid">
-          <div class="stat-box">
-            <span class="stat-label">Tamanho Original</span>
-            <span id="resOriginalSize" class="stat-value text-muted">8.40 MB</span>
-          </div>
-          <div class="stat-arrow">➔</div>
-          <div class="stat-box stat-highlight">
-            <span class="stat-label">Novo Tamanho</span>
-            <span id="resCompressedSize" class="stat-value text-success">1.42 MB</span>
-          </div>
-          <div class="stat-box">
-            <span class="stat-label">Redução</span>
-            <span id="resReduction" class="stat-badge">-83%</span>
+      <!-- Step 3b: results -->
+      <section id="resultsView" class="view card hidden">
+        <div id="resultBanner" class="result-banner">
+          <div class="result-banner-icon" aria-hidden="true"></div>
+          <div>
+            <h2 id="resultTitle"></h2>
+            <p id="resultBody"></p>
           </div>
         </div>
-
-        <div id="underTwoMbBadge" class="status-pill success-pill">
-          ✓ Ficheiro inferior a 2.0 MB — Perfeito para submeter no portal!
-        </div>
-
+        <ul id="resultList" class="result-list"></ul>
         <div class="result-actions">
-          <a id="downloadBtn" class="btn btn-success btn-large" href="#" download>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/>
-              <line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-            Descarregar PDF Comprimido (<span id="downloadBtnSize">-- MB</span>)
-          </a>
-
-          <button id="resetBtn" class="btn btn-secondary">
-            Comprimir outro ficheiro PDF
-          </button>
+          <button type="button" id="zipBtn" class="btn btn-primary hidden" data-i18n="result.zip">Descarregar tudo (ZIP)</button>
+          <button type="button" id="shareBtn" class="btn btn-secondary hidden" data-i18n="result.share">Partilhar</button>
+          <button type="button" id="backBtn" class="btn btn-ghost" data-i18n="result.back">Voltar a ajustar</button>
+          <button type="button" id="againBtn" class="btn btn-ghost" data-i18n="result.again">Novos ficheiros</button>
         </div>
       </section>
     </main>
 
     <footer class="app-footer">
-      <p>Desenvolvido para máxima velocidade, privacidade e facilidade de utilização.</p>
-      <p class="tech-note">Tecnologia WebAssembly & Client-Side Canvas Engine</p>
+      <p data-i18n="footer.privacy">Tudo acontece no seu navegador. Nenhum ficheiro é enviado para servidores.</p>
+      <p class="footer-muted">
+        <span data-i18n="footer.offline">Depois da primeira visita, funciona mesmo sem internet.</span>
+        <button type="button" id="installBtn" class="link-btn hidden" data-i18n="footer.install">Instalar app</button>
+      </p>
     </footer>
   </div>
+
+  <dialog id="compareDialog" class="compare-dialog" aria-labelledby="compareTitle">
+    <div class="compare-head">
+      <div>
+        <h2 id="compareTitle" data-i18n="compare.title">Antes e depois</h2>
+        <p id="compareName" class="compare-name"></p>
+      </div>
+      <button type="button" class="icon-btn" id="compareClose" data-i18n-attr="aria-label:compare.close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="compare-panes">
+      <figure>
+        <figcaption><span data-i18n="compare.before">Original</span> <span id="compareBeforeSize" class="muted"></span></figcaption>
+        <div class="compare-canvas" id="compareBefore"></div>
+      </figure>
+      <figure>
+        <figcaption><span data-i18n="compare.after">Comprimido</span> <span id="compareAfterSize" class="muted"></span></figcaption>
+        <div class="compare-canvas" id="compareAfter"></div>
+      </figure>
+    </div>
+    <div class="compare-nav">
+      <button type="button" class="icon-btn" id="comparePrev" data-i18n-attr="aria-label:compare.prev">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <span id="comparePage"></span>
+      <button type="button" class="icon-btn" id="compareNext" data-i18n-attr="aria-label:compare.next">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+    </div>
+  </dialog>
+
+  <div id="dropOverlay" class="drop-overlay hidden" aria-hidden="true">
+    <div class="drop-overlay-inner" data-i18n="drop.title">Arraste PDFs ou fotos para aqui</div>
+  </div>
+  <div id="toasts" class="toasts" aria-live="assertive"></div>
 
   <script type="module" src="./src/main.js"></script>
 </body>
