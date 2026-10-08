@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'bun:test';
-import { messages, detectLanguage, t, tn } from '../../src/i18n.js';
+import { messages, detectLanguage, t, tn, localizeNumber } from '../../src/i18n.js';
 
 describe('i18n', () => {
   it('has the same keys in every language', () => {
@@ -29,5 +29,11 @@ describe('i18n', () => {
     expect(tn('ws.pages', 1, {}, 'pt')).toBe('1 página');
     expect(tn('ws.pages', 3, {}, 'en')).toBe('3 pages');
     expect(t('missing.key')).toBe('missing.key');
+  });
+
+  it('uses the decimal comma in Portuguese only', () => {
+    expect(localizeNumber('1.56 MB', 'pt')).toBe('1,56 MB');
+    expect(localizeNumber('1.56 MB', 'en')).toBe('1.56 MB');
+    expect(localizeNumber('ficheiro.pdf 2 MB', 'pt')).toBe('ficheiro.pdf 2 MB');
   });
 });

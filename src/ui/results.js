@@ -1,7 +1,9 @@
 import { h, icons } from './dom.js';
-import { t, tn } from '../i18n.js';
+import { t, tn, localizeNumber } from '../i18n.js';
 import { formatSize, calculateReduction, targetLabel } from '../engine/format.js';
 import { openPdf, renderPageToCanvas } from '../engine/pdfjs.js';
+
+const displaySize = (bytes) => localizeNumber(formatSize(bytes));
 
 let blobUrls = [];
 
@@ -11,7 +13,7 @@ export function revokeResultUrls() {
 }
 
 function resultItem(result, targetMB, onCompare) {
-  const size = targetLabel(targetMB);
+  const size = localizeNumber(targetLabel(targetMB));
   const reduction = calculateReduction(result.originalSize, result.size);
   const url = URL.createObjectURL(new Blob([result.bytes], { type: 'application/pdf' }));
   blobUrls.push(url);
@@ -26,12 +28,12 @@ function resultItem(result, targetMB, onCompare) {
     h('div', { class: 'result-stats' },
       h('div', { class: 'stat' },
         h('span', { class: 'stat-label' }, t('result.original')),
-        h('span', { class: `stat-value${reduction > 0 ? ' is-old' : ''}` }, formatSize(result.originalSize))),
+        h('span', { class: `stat-value${reduction > 0 ? ' is-old' : ''}` }, displaySize(result.originalSize))),
       h('span', { class: 'stat-arrow', 'aria-hidden': 'true' }, '→'),
       h('div', { class: 'stat' },
         h('span', { class: 'stat-label' }, t('result.new')),
-        h('span', { class: `stat-value ${result.met ? 'is-ok' : 'is-bad'}`, dataset: { testid: 'new-size' } }, formatSize(result.size))),
-      h('span', { class: 'reduction-badge', 'aria-label': `${t('result.reduction')}: ${reduction}%` }, `−${reduction}%`),
+        h('span', { class: `stat-value ${result.met ? 'is-ok' : 'is-bad'}`, dataset: { testid: 'new-size' } }, displaySize(result.size))),
+      reduction > 0 && h('span', { class: 'reduction-badge', 'aria-label': `${t('result.reduction')}: ${reduction}%` }, `−${reduction}%`),
     ),
     h('div', { class: 'result-foot' },
       h('span', { class: `status-pill${result.met ? '' : ' is-warning'}`, dataset: { testid: 'status' } },
@@ -40,7 +42,7 @@ function resultItem(result, targetMB, onCompare) {
         h('button', { type: 'button', class: 'btn btn-ghost btn-sm', onclick: () => onCompare(result) },
           h('span', { html: icons.compare }), t('result.compare')),
         h('a', { class: 'btn btn-primary btn-sm download-link', href: url, download: result.name },
-          h('span', { html: icons.download }), `${t('result.download')} (${formatSize(result.size)})`),
+          h('span', { html: icons.download }), `${t('result.download')} (${displaySize(result.size)})`),
       ),
     ),
   );
@@ -50,7 +52,7 @@ function resultItem(result, targetMB, onCompare) {
 export function renderResults(results, targetMB, { onCompare }) {
   revokeResultUrls();
   const allMet = results.every((r) => r.met);
-  const size = targetLabel(targetMB);
+  const size = localizeNumber(targetLabel(targetMB));
 
   const banner = document.getElementById('resultBanner');
   banner.classList.toggle('is-warning', !allMet);
@@ -91,8 +93,8 @@ async function drawComparePage() {
 export async function openCompare(result) {
   const dialog = document.getElementById('compareDialog');
   document.getElementById('compareName').textContent = result.name;
-  document.getElementById('compareBeforeSize').textContent = `· ${formatSize(result.originalSize)}`;
-  document.getElementById('compareAfterSize').textContent = `· ${formatSize(result.size)}`;
+  document.getElementById('compareBeforeSize').textContent = `· ${displaySize(result.originalSize)}`;
+  document.getElementById('compareAfterSize').textContent = `· ${displaySize(result.size)}`;
   const loading = () => h('div', { class: 'thumb-loading', style: { width: '70%', height: '260px' } });
   document.getElementById('compareBefore').replaceChildren(loading());
   document.getElementById('compareAfter').replaceChildren(loading());

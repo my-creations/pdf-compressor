@@ -178,7 +178,7 @@ test.describe('PDF Compressor', () => {
     await expect(page.locator('#compressBtn')).toBeDisabled();
     await expect(page.locator('#targetHint')).toHaveText(/entre 0,1 e 500/);
     await page.locator('#customTarget').fill('1,5');
-    await expect(page.locator('#compressBtnLabel')).toHaveText('Comprimir para menos de 1.5 MB');
+    await expect(page.locator('#compressBtnLabel')).toHaveText('Comprimir para menos de 1,5 MB');
 
     await page.locator('#compressBtn').click();
     await expect(page.locator('#resultsView')).toBeVisible({ timeout: 20000 });
@@ -205,7 +205,7 @@ test.describe('PDF Compressor', () => {
 
     await expect(page.locator('#resultsView')).toBeVisible({ timeout: 50000 });
     await expect(page.locator('#resultTitle')).toHaveText('Quase lá');
-    await expect(page.locator('[data-testid="status"]')).toContainText('Acima de 0.1 MB');
+    await expect(page.locator('[data-testid="status"]')).toContainText('Acima de 0,1 MB');
   });
 
   test('switches to English and remembers it', async ({ page }) => {

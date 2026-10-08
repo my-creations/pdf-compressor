@@ -1,5 +1,5 @@
 import { h, icons } from './dom.js';
-import { t, tn } from '../i18n.js';
+import { t, tn, localizeNumber } from '../i18n.js';
 import { formatSize } from '../engine/format.js';
 import { renderPageToCanvas } from '../engine/pdfjs.js';
 
@@ -137,7 +137,7 @@ function fileGroup(source, pages, fileIndex, fileCount, actions) {
         source.kind === 'image' ? 'IMG' : 'PDF'),
       h('div', { class: 'file-meta' },
         h('p', { class: 'file-name', title: name }, name),
-        h('p', { class: 'file-sub' }, `${formatSize(source.size)} · ${tn('ws.pages', pages.length)}`),
+        h('p', { class: 'file-sub' }, `${localizeNumber(formatSize(source.size))} · ${tn('ws.pages', pages.length)}`),
       ),
       h('div', { class: 'file-actions' },
         multi && h('button', {

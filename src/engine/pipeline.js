@@ -70,7 +70,8 @@ export async function runJob(job, { onProgress = () => {}, signal } = {}) {
       sourceBytes: assembled.bytes,
       bytes: result.bytes,
       size: result.bytes.length,
-      mode: result.mode,
+      // Photos are always re-encoded when they become pages, so "lossless" would be misleading.
+      mode: result.mode !== 'raster' && output.pages.some((p) => sources[p.sourceId].kind === 'image') ? 'photos' : result.mode,
       met: result.met,
     });
   }

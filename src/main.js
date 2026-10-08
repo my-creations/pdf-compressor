@@ -1,7 +1,7 @@
 import '@fontsource-variable/plus-jakarta-sans';
 import './style.css';
 import { zipSync } from 'fflate';
-import { initLanguage, setLanguage, getLanguage, onLanguageChange, t, tn } from './i18n.js';
+import { initLanguage, setLanguage, getLanguage, onLanguageChange, t, tn, localizeNumber } from './i18n.js';
 import {
   DEFAULT_TARGET_MB, TARGET_PRESETS_MB, formatSize, parseTargetMB, targetBytesFor, targetLabel,
   outputFileName, uniqueNames,
@@ -207,7 +207,7 @@ function totals() {
 
 function renderWorkspace(focusKey) {
   const { files, pages, size } = totals();
-  $('wsSummary').textContent = `${tn('ws.files', files)} · ${tn('ws.pages', pages)} · ${formatSize(size)}`;
+  $('wsSummary').textContent = `${tn('ws.files', files)} · ${tn('ws.pages', pages)} · ${localizeNumber(formatSize(size))}`;
   renderFileGroups($('fileGroups'), state, workspaceActions, focusKey);
   $('wsEmpty').classList.toggle('hidden', pages > 0);
   $('outputOption').classList.toggle('hidden', files < 2);
@@ -235,7 +235,7 @@ function renderOptions() {
 
   const { pages, files } = totals();
   const merge = files > 1 && state.outputMode === 'merge';
-  const label = mb ? t(merge ? 'cta.merge' : 'cta.compress', { size: targetLabel(mb) }) : t('cta.compress', { size: '…' });
+  const label = mb ? t(merge ? 'cta.merge' : 'cta.compress', { size: localizeNumber(targetLabel(mb)) }) : t('cta.compress', { size: '…' });
   $('compressBtnLabel').textContent = label;
   $('compressBtn').disabled = !mb || pages === 0;
 }

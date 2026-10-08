@@ -86,6 +86,7 @@ export const messages = {
     'mode.lossless': 'Otimizado sem perda de qualidade',
     'mode.images': 'Imagens recomprimidas, texto preservado',
     'mode.raster': 'Páginas convertidas em imagem: o texto deixa de ser selecionável',
+    'mode.photos': 'Fotos convertidas em PDF e otimizadas',
 
     'compare.title': 'Antes e depois',
     'compare.before': 'Original',
@@ -193,6 +194,7 @@ export const messages = {
     'mode.lossless': 'Optimized with no quality loss',
     'mode.images': 'Images recompressed, text preserved',
     'mode.raster': 'Pages converted to images: text is no longer selectable',
+    'mode.photos': 'Photos converted to PDF and optimized',
 
     'compare.title': 'Before and after',
     'compare.before': 'Original',
@@ -267,6 +269,11 @@ export function t(key, params = {}, lang = current) {
 /** Plural-aware translation using `key_one` / `key_other`. */
 export function tn(key, n, params = {}, lang = current) {
   return t(`${key}_${n === 1 ? 'one' : 'other'}`, { n, ...params }, lang);
+}
+
+/** Use the decimal comma in Portuguese ("1,5 MB"); English keeps the point. */
+export function localizeNumber(text, lang = current) {
+  return lang === 'pt' ? String(text).replace(/(\d)\.(\d)/g, '$1,$2') : String(text);
 }
 
 /**

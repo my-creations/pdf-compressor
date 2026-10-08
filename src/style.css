@@ -679,6 +679,7 @@ h1 { font-size: clamp(1.45rem, 3.6vw, 1.85rem); font-weight: 800; letter-spacing
 /* ---------- Small screens ---------- */
 
 @media (max-width: 560px) {
+  .brand { align-items: flex-start; }
   .brand-mark { width: 44px; height: 44px; border-radius: 13px; }
   .brand-mark svg { width: 22px; height: 22px; }
   .subtitle { font-size: 0.9rem; }
